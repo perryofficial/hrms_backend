@@ -78,3 +78,30 @@ class LoginSerializer(serializers.Serializer):
             "refresh": str(refresh),
             "access": str(refresh.access_token),
         }
+
+
+
+class TokenRefreshSerializer(serializers.Serializer):
+    
+    refresh = serializers.CharField()
+
+    def validate(self, attrs):
+
+        refresh_token = attrs.get("refresh")
+
+        if not refresh_token:
+            raise serializers.ValidationError(
+                "Refresh token is required."
+            )
+
+        try:
+            refresh = RefreshToken(refresh_token)
+            access_token = str(refresh.access_token)
+        except Exception:
+            raise serializers.ValidationError(
+                "Invalid refresh token."
+            )
+
+        return {
+            "access": access_token,
+        }

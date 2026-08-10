@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from .serializers import (
     RegisterSerializer,
     LoginSerializer,
+    TokenRefreshSerializer
     )
 
 
@@ -74,4 +75,32 @@ class MeView(APIView):
                 "phone_number": request.user.phone_number,
             },
             status=status.HTTP_200_OK,
+        )
+
+
+class TokenRefreshView(APIView):
+    
+    def post(self, request):
+
+        refresh_token = request.data.get("refresh")
+
+        if not refresh_token:
+            return Response(
+                {"error": "Refresh token is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = TokenRefreshSerializer(data={"refresh": refresh_token})
+
+        if serializer.is_valid():
+            return Response(
+                {
+                    "access": serializer.validated_data["access"],
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
         )
