@@ -10,11 +10,6 @@ User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
 
-    password = serializers.CharField(
-        write_only=True,
-        min_length=8
-    )
-
     class Meta:
         model = User
         fields = [
@@ -22,16 +17,21 @@ class RegisterSerializer(serializers.ModelSerializer):
             "password",
             "phone_number",
         ]
+        extra_kwargs = {
+            "password": {"write_only": True},
+        }
 
-    def validate_email(self, value):
+    def validate_password(self, value):
 
-        if User.objects.filter(email=value).exists():
+        if len(value) < 8:
             raise serializers.ValidationError(
-                "Email already exists."
+                "Password must be at least 8 characters long."
             )
 
         return value
 
+
+    
     def create(self, validated_data):
 
         user = User.objects.create_user(
@@ -80,6 +80,19 @@ class LoginSerializer(serializers.Serializer):
         }
 
 
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "phone_number",
+        ]
+        read_only_fields = [
+            "id",
+            "email",
+        ]
 
 class TokenRefreshSerializer(serializers.Serializer):
     

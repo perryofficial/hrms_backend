@@ -6,7 +6,8 @@ from rest_framework.views import APIView
 from .serializers import (
     RegisterSerializer,
     LoginSerializer,
-    TokenRefreshSerializer
+    TokenRefreshSerializer,
+    UserSerializer,
     )
 
 
@@ -22,11 +23,7 @@ class RegisterView(APIView):
             return Response(
                 {
                     "message": "User registered successfully.",
-                    "data": {
-                        "id": user.id,
-                        "email": user.email,
-                        "phone_number": user.phone_number,
-                    }
+                    "user": UserSerializer(user).data,
                 },
                 status=status.HTTP_201_CREATED
             )
@@ -35,8 +32,6 @@ class RegisterView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
-
-
 
 
 class LoginView(APIView):
@@ -68,12 +63,10 @@ class MeView(APIView):
 
     def get(self, request):
 
+        serializer = UserSerializer(request.user)
+
         return Response(
-            {
-                "id": request.user.id,
-                "email": request.user.email,
-                "phone_number": request.user.phone_number,
-            },
+            serializer.data,
             status=status.HTTP_200_OK,
         )
 
