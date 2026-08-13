@@ -8,6 +8,7 @@ from .serializers import (
     LoginSerializer,
     TokenRefreshSerializer,
     UserSerializer,
+    LogoutSerializer,
     )
 
 
@@ -96,4 +97,22 @@ class TokenRefreshView(APIView):
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+
+class LogoutView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        serializer = LogoutSerializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {"message": "Logout successful."},
+            status=status.HTTP_200_OK,
         )
